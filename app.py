@@ -9,9 +9,6 @@ from io import BytesIO
 from google import genai
 from google.genai import types
 
-# ==========================================
-# PAGE CONFIG & HIGH-CONTRAST DARK STYLING
-# ==========================================
 st.set_page_config(page_title="2026 Full AI Agency", page_icon="🏢", layout="wide")
 
 st.markdown("""
@@ -227,3 +224,7 @@ if user_task:
                     try:
                         exec(code, globals())
                     except Exception as e2:
+                        last_error = traceback.format_exc()
+                        continue
+
+                render_agency("VERIFIER", "File check kar rahi hoon...")
