@@ -10,45 +10,57 @@ from google import genai
 from google.genai import types
 
 # ==========================================
-# PAGE CONFIG & AGENCY STYLING
+# PAGE CONFIG & HIGH-CONTRAST DARK STYLING
 # ==========================================
 st.set_page_config(page_title="2026 Full AI Agency", page_icon="🏢", layout="wide")
 
 st.markdown("""
 <style>
-    .stApp { background-color: #090d16; color: #ffffff; }
+    /* Force Dark Background & Bright Text Everywhere */
+    .stApp, [data-testid="stAppViewContainer"], [data-testid="stHeader"] {
+        background-color: #0b0f19 !important;
+        color: #ffffff !important;
+    }
+    [data-testid="stSidebar"] {
+        background-color: #111827 !important;
+        color: #ffffff !important;
+    }
+    p, span, div, label, li, h1, h2, h3, h4 {
+        color: #f3f4f6 !important;
+    }
+    .stChatMessage {
+        background-color: #161e2e !important;
+        border: 1px solid #2d3748 !important;
+        border-radius: 12px !important;
+        padding: 12px !important;
+        color: #ffffff !important;
+    }
+    /* Compact Mobile-Friendly Agent Cards */
     .agent-card {
-        background-color: #131926;
-        border: 2px solid #232d42;
-        border-radius: 12px;
-        padding: 10px;
+        background-color: #161e2e;
+        border: 2px solid #2d3748;
+        border-radius: 10px;
+        padding: 8px 4px;
         text-align: center;
         transition: all 0.3s ease;
-        min-height: 155px;
+        margin-bottom: 6px;
     }
     .agent-active {
-        background-color: #162638;
+        background-color: #0f293a;
         border: 2px solid #00ffcc;
-        box-shadow: 0 0 18px rgba(0, 255, 204, 0.6);
-        transform: scale(1.06);
+        box-shadow: 0 0 15px rgba(0, 255, 204, 0.7);
     }
     .agent-verify {
-        background-color: #2b1d38;
+        background-color: #2d1b36;
         border: 2px solid #ffaa00;
-        box-shadow: 0 0 18px rgba(255, 170, 0, 0.6);
-        transform: scale(1.06);
+        box-shadow: 0 0 15px rgba(255, 170, 0, 0.7);
     }
-    .agent-avatar { font-size: 36px; margin-bottom: 4px; }
-    .agent-name { font-weight: bold; font-size: 14px; color: #ffffff; }
-    .agent-role { font-size: 11px; color: #8b9bb4; }
-    .agent-status-idle { color: #6c7a96; font-size: 11px; margin-top: 6px; }
-    .agent-status-work { color: #00ffcc; font-weight: bold; font-size: 11px; margin-top: 6px; animation: pulse 1.2s infinite; }
-    .agent-status-verify { color: #ffaa00; font-weight: bold; font-size: 11px; margin-top: 6px; animation: pulse 1.2s infinite; }
-    @keyframes pulse {
-        0% { opacity: 1; }
-        50% { opacity: 0.4; }
-        100% { opacity: 1; }
-    }
+    .agent-avatar { font-size: 28px; }
+    .agent-name { font-weight: bold; font-size: 13px; color: #ffffff !important; }
+    .agent-role { font-size: 10px; color: #9ca3af !important; }
+    .agent-status-idle { color: #9ca3af !important; font-size: 10px; margin-top: 4px; }
+    .agent-status-work { color: #00ffcc !important; font-weight: bold; font-size: 11px; margin-top: 4px; }
+    .agent-status-verify { color: #ffaa00 !important; font-weight: bold; font-size: 11px; margin-top: 4px; }
 </style>
 """, unsafe_allow_html=True)
 
@@ -96,11 +108,11 @@ with st.sidebar:
 # ==========================================
 # MAIN SCREEN: THE 7-AGENT PIPELINE
 # ==========================================
-st.title("🏢 2026 End-to-End Autonomous AI Agency")
-st.caption("Planner • Inspector • Specialists • Quality Verifier (Full Pipeline)")
+st.title("🏢 2026 Autonomous AI Agency")
+st.caption("Planner • Inspector • Specialists • Quality Verifier")
 
 if not api_key:
-    st.warning("👈 Shuru karne ke liye baayein taraf (Sidebar) mein apni Gemini API Key paste karein.")
+    st.warning("👈 Shuru karne ke liye baayein taraf (>>) mein apni Gemini API Key paste karein.")
     st.stop()
 
 client = genai.Client(api_key=api_key)
@@ -145,8 +157,7 @@ def render_agency(active_agent="NONE", status_msg="Intezar..."):
 render_agency("NONE")
 st.divider()
 
-# File Uploader
-uploaded_files = st.file_uploader("📤 Files yahan drop karein:", type=["xlsx", "csv"], accept_multiple_files=True)
+uploaded_files = st.file_uploader("📤 Excel Files yahan upload karein:", type=["xlsx", "csv"], accept_multiple_files=True)
 if uploaded_files:
     for uf in uploaded_files:
         with open(os.path.join(custom_folder, uf.name), "wb") as f:
@@ -166,9 +177,8 @@ if user_task:
     with st.chat_message("assistant"):
         log = st.container()
         
-        # STAGE 1: MR. BOSS (PLANNING)
-        render_agency("BOSS", "Project Plan bana raha hoon...")
-        log.write("🧑‍💼 **Mr. Boss (CEO):** Hukum mil gaya! Main is kaam ka step-by-step plan bana kar team ko assign kar raha hoon...")
+        render_agency("BOSS", "Plan bana raha hoon...")
+        log.write("🧑‍💼 **Mr. Boss (CEO):** Hukum mil gaya! Plan bana kar team ko assign kar raha hoon...")
         time.sleep(1)
 
         plan_prompt = f"""
@@ -182,10 +192,9 @@ if user_task:
         dept = "EXCEL" if "EXCEL" in plan_res.upper() else ("DESIGN" if "DESIGN" in plan_res.upper() else ("YOUTUBE" if "YOUTUBE" in plan_res.upper() else "CODING"))
         log.info(f"📋 **Project Plan:**\n{plan_res}")
 
-        # STAGE 2: EXCEL DEPARTMENT
         if dept == "EXCEL":
-            render_agency("INSPECTOR", "Files aur data scan kar rahi hoon...")
-            log.write("🔍 **Maya (Inspector):** Main folder mein mojood tamam Excel files aur un ke columns ki gehrai se jaanch kar rahi hoon...")
+            render_agency("INSPECTOR", "Files scan kar rahi hoon...")
+            log.write("🔍 **Maya (Inspector):** Tamam Excel files aur columns ki jaanch kar rahi hoon...")
             time.sleep(1)
             
             excel_files = [os.path.join(custom_folder, f) for f in os.listdir(custom_folder) if f.endswith((".xlsx", ".csv")) and not f.startswith("DONE_")]
@@ -208,7 +217,7 @@ if user_task:
             
             for cycle in range(1, 4):
                 render_agency("EXCEL", f"Kaam kar rahi hoon (Round {cycle})...")
-                log.write(f"📊 **Sara (Excel Specialist):** Round {cycle} — Main calculations, formatting aur charts par kaam kar rahi hoon...")
+                log.write(f"📊 **Sara (Excel Specialist):** Round {cycle} — Calculations, formatting aur charts par kaam kar rahi hoon...")
                 
                 code_prompt = f"""
                 Tum Sara ho, aik expert Python Excel Developer.
@@ -231,5 +240,3 @@ if user_task:
                 except Exception:
                     err = traceback.format_exc()
                     render_agency("CODING", "Error fix kar raha hoon...")
-                    log.warning("👨‍💻 **Max (Coder):** Code mein technical error aaya hai, main abhi theek kar ke Sara ko deta hoon!")
-                    fix_prompt = f"Error:\n{err}\nCode:\n{code}\nIsay theek kar ke pure Python code do."
